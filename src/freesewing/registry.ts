@@ -1,6 +1,6 @@
 import { readFile, writeFile } from 'node:fs/promises'
 import { loadDesignPackage } from './design-loader.js'
-import { fileExists, projectRoot } from './storage.js'
+import { assertSafeSlug, fileExists, projectRoot } from './storage.js'
 import { join } from 'node:path'
 
 export type Measurements = Record<string, number>
@@ -61,7 +61,7 @@ export async function readSupportedDesignRecords() {
   const raw = await readFile(path, 'utf8')
   const records = JSON.parse(raw) as SupportedDesignRecord[]
   return records
-    .filter((record) => record.status === 'supported')
+    .filter(isSafeSupportedDesignRecord)
     .sort((a, b) => a.id.localeCompare(b.id))
 }
 
@@ -90,6 +90,7 @@ export async function listDesigns() {
 }
 
 export async function getDesignEntry(designId: string): Promise<DesignEntry> {
+  assertSafeSlug(designId, 'designId')
   const cached = registryCache.get(designId)
   if (cached) return cached
 
@@ -125,6 +126,10 @@ export async function getDesignConfig(designId: string) {
 }
 
 export async function upsertSupportedDesignRecord(record: SupportedDesignRecord) {
+  if (!isSafeSupportedDesignRecord(record)) {
+    throw new Error(`Unsafe supported design record: ${record.id}`)
+  }
+
   const records = await readSupportedDesignRecords()
   const index = records.findIndex((item) => item.id === record.id)
   if (index >= 0) records[index] = record
@@ -132,4 +137,13 @@ export async function upsertSupportedDesignRecord(record: SupportedDesignRecord)
 
   await writeSupportedDesignRecords(records)
   return record
+}
+
+function isSafeSupportedDesignRecord(record: SupportedDesignRecord) {
+  return (
+    record.status === 'supported' &&
+    /^[a-z0-9][a-z0-9-]*$/.test(record.id) &&
+    /^@freesewing\/[a-z0-9][a-z0-9-]*$/.test(record.packageName) &&
+    /^[a-z0-9][a-z0-9-]*$/.test(record.defaultMeasurementFixture)
+  )
 }

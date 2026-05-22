@@ -13,6 +13,7 @@ import {
   PatternMetadata,
   createPatternId,
   ensureOutputDirs,
+  getPatternFileReferences,
   getPatternFilePaths,
   readJson,
   readPatternMetadata,
@@ -44,6 +45,7 @@ export async function draftDesign(input: DraftDesignInput): Promise<DraftDesignR
 
   const patternId = createPatternId(input.designId)
   const files = getPatternFilePaths(patternId)
+  const fileReferences = getPatternFileReferences(patternId)
   const rawOptions = input.options ?? {}
   const options = await normalizeOptionsForDesign(input.designId, rawOptions)
   const { measurements, measurementFixture } = await resolveMeasurements(
@@ -103,7 +105,7 @@ export async function draftDesign(input: DraftDesignInput): Promise<DraftDesignR
     draftSuccess,
     renderSuccess,
     errors,
-    files,
+    files: fileReferences,
   }
 
   await savePatternMetadata(metadata)
@@ -114,7 +116,7 @@ export async function draftDesign(input: DraftDesignInput): Promise<DraftDesignR
   return {
     patternId,
     designId: input.designId,
-    files,
+    files: fileReferences,
     metadata,
     validationReport,
     svgLength: svg.length,

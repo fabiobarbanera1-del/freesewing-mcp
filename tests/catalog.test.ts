@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { isAbsolute } from 'node:path'
 import { test } from 'node:test'
 import {
   checkDesignPackage,
@@ -7,6 +8,7 @@ import {
   verifyInstalledDesign,
 } from '../src/freesewing/catalog.js'
 import { getDesignOptions, normalizeOptionsForDesign } from '../src/freesewing/inspect.js'
+import { draftDesign, renderSvg } from '../src/freesewing/draft.js'
 
 test('compares local design catalog against supported registry', async () => {
   const catalog = await compareDesignCatalog({ online: false })
@@ -62,4 +64,26 @@ test('normalizes percent options from displayed percentages to FreeSewing fracti
 
   assert.equal(normalized.collarHeight, 0.105)
   assert.equal(normalized.chestEase, 0.15)
+})
+
+test('rejects path traversal in fixture and pattern identifiers', async () => {
+  await assert.rejects(
+    () => draftDesign({ designId: 'florent', measurementFixture: '../package-lock' }),
+    /Unsafe measurementFixture/,
+  )
+
+  await assert.rejects(() => renderSvg('../package-lock'), /Unsafe patternId/)
+})
+
+test('stores generated artifact references without absolute local paths', async () => {
+  const drafted = await draftDesign({
+    designId: 'florent',
+    measurementFixture: 'standard',
+  })
+
+  assert.equal(isAbsolute(drafted.files.metadata), false)
+  assert.equal(isAbsolute(drafted.files.svg), false)
+  assert.equal(isAbsolute(drafted.files.renderProps), false)
+  assert.equal(isAbsolute(drafted.files.validationReport), false)
+  assert.match(drafted.files.svg, /^outputs\/svg\/florent-\d{14}-[a-f0-9]{8}\.svg$/)
 })

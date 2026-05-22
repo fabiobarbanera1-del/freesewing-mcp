@@ -356,12 +356,16 @@ References:
 - The MCP server is local stdio only.
 - Tool inputs are validated with Zod schemas.
 - Supported designs are allowlisted in `catalog/supported-designs.json`.
+- Design IDs, measurement fixture IDs, and pattern IDs are constrained to safe
+  slug formats before filesystem access.
 - Additional install requests are restricted to `@freesewing/*` package names.
 - Install defaults to dry-run and requires explicit confirmation for execution.
 - Actual install verifies npm metadata before running.
 - New installs are local to this project and use npm save-exact behavior.
 - The server never edits Codex or Claude configuration files.
-- Generated artifacts are written only under the local `outputs/` tree.
+- Generated artifacts are written only under the local `outputs/` tree, and
+  metadata stores project-relative artifact paths rather than local absolute
+  paths.
 - Official FreeSewing npm packages are executable code; only install packages
   from sources you trust.
 

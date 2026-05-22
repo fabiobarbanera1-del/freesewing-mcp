@@ -1,6 +1,6 @@
 import { readdir } from 'node:fs/promises'
 import { basename, join } from 'node:path'
-import { fixturePath, fileExists, readJson } from './storage.js'
+import { assertSafeSlug, fixturePath, fileExists, readJson } from './storage.js'
 import { Measurements, getDesignEntry } from './registry.js'
 
 export async function listMeasurementFixtures() {
@@ -14,11 +14,13 @@ export async function listMeasurementFixtures() {
 }
 
 export async function loadMeasurementFixture(setId: string) {
+  assertSafeSlug(setId, 'measurementFixture')
   const path = fixturePath('measurements', `${setId}.json`)
   return readJson<Measurements>(path)
 }
 
 export async function loadOptionFixture(designId: string) {
+  assertSafeSlug(designId, 'designId')
   const path = fixturePath('options', `${designId}.json`)
   if (!(await fileExists(path))) return {}
   return readJson<Record<string, unknown>>(path)

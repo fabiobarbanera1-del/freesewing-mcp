@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import { readdir, readFile, stat, writeFile } from 'node:fs/promises'
-import { dirname, join, resolve } from 'node:path'
+import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { mkdir } from 'node:fs/promises'
 
@@ -46,16 +46,28 @@ export function outputPath(...segments: string[]) {
 }
 
 export function createPatternId(designId: string) {
+  assertSafeSlug(designId, 'designId')
   const timestamp = new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14)
   return `${designId}-${timestamp}-${randomUUID().slice(0, 8)}`
 }
 
 export function getPatternFilePaths(patternId: string) {
+  assertSafePatternId(patternId)
   return {
     metadata: outputPath('patterns', `${patternId}.json`),
     svg: outputPath('svg', `${patternId}.svg`),
     renderProps: outputPath('render-props', `${patternId}.json`),
     validationReport: outputPath('reports', `${patternId}.json`),
+  }
+}
+
+export function getPatternFileReferences(patternId: string) {
+  assertSafePatternId(patternId)
+  return {
+    metadata: relativeProjectPath('outputs', 'patterns', `${patternId}.json`),
+    svg: relativeProjectPath('outputs', 'svg', `${patternId}.svg`),
+    renderProps: relativeProjectPath('outputs', 'render-props', `${patternId}.json`),
+    validationReport: relativeProjectPath('outputs', 'reports', `${patternId}.json`),
   }
 }
 
@@ -69,21 +81,23 @@ export async function ensureOutputDirs() {
 }
 
 export async function writeJson(path: string, data: unknown) {
-  await mkdir(dirname(path), { recursive: true })
-  await writeFile(path, `${JSON.stringify(data, null, 2)}\n`, 'utf8')
+  const safePath = resolveProjectFile(path)
+  await mkdir(dirname(safePath), { recursive: true })
+  await writeFile(safePath, `${JSON.stringify(data, null, 2)}\n`, 'utf8')
 }
 
 export async function readJson<T>(path: string): Promise<T> {
-  return JSON.parse(await readFile(path, 'utf8')) as T
+  return JSON.parse(await readFile(resolveProjectFile(path), 'utf8')) as T
 }
 
 export async function writeText(path: string, text: string) {
-  await mkdir(dirname(path), { recursive: true })
-  await writeFile(path, text, 'utf8')
+  const safePath = resolveProjectFile(path)
+  await mkdir(dirname(safePath), { recursive: true })
+  await writeFile(safePath, text, 'utf8')
 }
 
 export async function readText(path: string) {
-  return readFile(path, 'utf8')
+  return readFile(resolveProjectFile(path), 'utf8')
 }
 
 export async function fileExists(path: string) {
@@ -113,4 +127,41 @@ export async function listPatternMetadata() {
   )
 
   return records.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+}
+
+export function assertSafeSlug(value: string, label: string) {
+  if (!/^[a-z0-9][a-z0-9-]*$/.test(value)) {
+    throw new Error(`Unsafe ${label}: ${value}`)
+  }
+}
+
+export function assertSafePatternId(patternId: string) {
+  if (!/^[a-z0-9][a-z0-9-]*-\d{14}-[a-f0-9]{8}$/.test(patternId)) {
+    throw new Error(`Unsafe patternId: ${patternId}`)
+  }
+}
+
+function relativeProjectPath(...segments: string[]) {
+  return segments.join('/')
+}
+
+function resolveProjectFile(path: string) {
+  const root = projectRoot()
+  const resolved = isAbsolute(path) ? resolve(path) : resolve(root, path)
+  const pathFromRoot = relative(root, resolved)
+
+  if (
+    pathFromRoot === '' ||
+    pathFromRoot.startsWith('..') ||
+    isAbsolute(pathFromRoot) ||
+    resolved === root
+  ) {
+    throw new Error(`Refusing to access path outside project root: ${path}`)
+  }
+
+  if (pathFromRoot.split(sep).includes('..')) {
+    throw new Error(`Refusing unsafe project path: ${path}`)
+  }
+
+  return resolved
 }
