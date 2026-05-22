@@ -1,0 +1,90 @@
+[
+  {
+    "id": "aaron",
+    "packageName": "@freesewing/aaron",
+    "defaultMeasurementFixture": "standard",
+    "status": "supported",
+    "verifiedAt": "2026-05-20T14:07:58.590Z"
+  },
+  {
+    "id": "bella",
+    "packageName": "@freesewing/bella",
+    "defaultMeasurementFixture": "standard",
+    "status": "supported",
+    "verifiedAt": "2026-05-20T14:07:58.643Z"
+  },
+  {
+    "id": "carlton",
+    "packageName": "@freesewing/carlton",
+    "defaultMeasurementFixture": "standard",
+    "status": "supported",
+    "exportName": "Carlton",
+    "verifiedAt": "2026-05-20T15:56:16.867Z",
+    "verification": {
+      "requiredMeasurements": [
+        "biceps",
+        "chest",
+        "hpsToBust",
+        "hpsToWaistBack",
+        "neck",
+        "shoulderToShoulder",
+        "shoulderSlope",
+        "waistToArmpit",
+        "waistToHips",
+        "waist",
+        "waistToFloor",
+        "waistToSeat",
+        "seat",
+        "shoulderToElbow",
+        "shoulderToWrist",
+        "wrist"
+      ],
+      "optionalMeasurements": [
+        "highBust"
+      ],
+      "optionCount": 51,
+      "partCount": 20,
+      "pathCount": 119,
+      "svgLength": 127595
+    }
+  },
+  {
+    "id": "florent",
+    "packageName": "@freesewing/florent",
+    "defaultMeasurementFixture": "standard",
+    "status": "supported",
+    "verifiedAt": "2026-05-20T14:07:58.724Z"
+  },
+  {
+    "id": "teagan",
+    "packageName": "@freesewing/teagan",
+    "defaultMeasurementFixture": "standard",
+    "status": "supported",
+    "exportName": "Teagan",
+    "verifiedAt": "2026-05-21T17:26:36.017Z",
+    "verification": {
+      "requiredMeasurements": [
+        "biceps",
+        "chest",
+        "hpsToBust",
+        "hpsToWaistBack",
+        "neck",
+        "shoulderToShoulder",
+        "shoulderSlope",
+        "waistToArmpit",
+        "waistToHips",
+        "hips",
+        "waist",
+        "shoulderToWrist",
+        "wrist"
+      ],
+      "optionalMeasurements": [
+        "highBust"
+      ],
+      "optionCount": 50,
+      "partCount": 3,
+      "pathCount": 28,
+      "svgLength": 36692
+    }
+  }
+]

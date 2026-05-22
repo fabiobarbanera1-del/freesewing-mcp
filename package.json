@@ -1,0 +1,50 @@
+{
+  "name": "freesewing-mcp",
+  "version": "0.1.0",
+  "description": "Unofficial MCP server for controlled FreeSewing inspection, drafting, SVG rendering, and validation.",
+  "type": "module",
+  "license": "MIT",
+  "private": true,
+  "files": [
+    "catalog",
+    "dist",
+    "fixtures",
+    "LICENSE",
+    "README.md"
+  ],
+  "bin": {
+    "freesewing-mcp": "./dist/mcp/server.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "prepare": "npm run build",
+    "test": "tsx --test tests/**/*.test.ts",
+    "smoke": "tsx src/cli/smoke.ts",
+    "spike:designs": "tsx src/cli/spike-designs.ts"
+  },
+  "dependencies": {
+    "@freesewing/aaron": "4.8.0",
+    "@freesewing/bella": "4.8.0",
+    "@freesewing/brian": "4.8.0",
+    "@freesewing/carlton": "4.8.0",
+    "@freesewing/config": "4.8.0",
+    "@freesewing/core": "4.8.0",
+    "@freesewing/florent": "4.8.0",
+    "@freesewing/i18n": "4.8.0",
+    "@freesewing/plugin-bust": "4.8.0",
+    "@freesewing/plugin-theme": "4.8.0",
+    "@freesewing/plugin-transform": "4.8.0",
+    "@freesewing/teagan": "4.8.0",
+    "@modelcontextprotocol/sdk": "1.29.0",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "25.9.1",
+    "tsx": "4.22.3",
+    "typescript": "6.0.3"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
